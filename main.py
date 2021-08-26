@@ -23,6 +23,7 @@ from tensorboardX import SummaryWriter
 
 best_prec1 = 0
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def main():
     global args, best_prec1
@@ -71,7 +72,11 @@ def main():
     policies = model.get_optim_policies()
     train_augmentation = model.get_augmentation(flip=False if 'something' in args.dataset or 'jester' in args.dataset else True)
 
-    model = torch.nn.DataParallel(model, device_ids=args.gpus).cuda()
+    # if device.type == 'cpu':
+    #     model = torch.nn.DataParallel(model.to(device.type))
+    # else:
+    #     model = torch.nn.DataParallel(model, device_ids=args.gpus).cuda()
+    model = torch.nn.DataParallel(model, device_ids=args.gpus).to(device)
 
     optimizer = torch.optim.SGD(policies,
                                 args.lr,
@@ -99,12 +104,12 @@ def main():
         sd = sd['state_dict'] 
         model_dict = model.state_dict()
 
-        ##### addition by BB ######## TODO: make renaming strategy more robust
+        ##### addition by BB #####
         #rename sd keys:
         #basically also making the model_dict and sd keys match
         rename_dict = []
         for k, v in sd.items():
-            new_key = 'module.'+k
+            new_key = k.replace('model', 'module', 1)
             """
             RuntimeError: Error(s) in loading state_dict for DataParallel:
         Unexpected key(s) in state_dict: "module.base_model.classifier.weight", "module.base_model.classifier.bias".
@@ -175,6 +180,9 @@ def main():
     if args.modality != 'RGBDiff':
         normalize = GroupNormalize(input_mean, input_std)
         print(f'input_mean = {input_mean}, input_std = {input_std}')
+
+        ###### TEST TRAINING WITHOUT GROUP NORMALIZE
+        #normalize = IdentityTransform()
     else:
         normalize = IdentityTransform()
 
@@ -216,7 +224,7 @@ def main():
 
     # define loss function (criterion) and optimizer
     if args.loss_type == 'nll':
-        criterion = torch.nn.CrossEntropyLoss().cuda()
+        criterion = torch.nn.CrossEntropyLoss().to(device)
     else:
         raise ValueError("Unknown loss type")
 
@@ -289,7 +297,7 @@ def train(train_loader, model, criterion, optimizer, epoch, log, tf_writer):
         # measure data loading time
         data_time.update(time.time() - end)
 
-        target = target.cuda()
+        target = target.to(device)
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
 
@@ -298,7 +306,7 @@ def train(train_loader, model, criterion, optimizer, epoch, log, tf_writer):
         loss = criterion(output, target_var)
 
         # measure accuracy and record loss
-        prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
+        prec1, prec5 = accuracy(output.data, target, topk=(1, 5))  # YWK - HAD TO CHANGE AS 1,5 CRASHES
         losses.update(loss.item(), input.size(0))
         top1.update(prec1.item(), input.size(0))
         top5.update(prec5.item(), input.size(0))
@@ -347,14 +355,14 @@ def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
     end = time.time()
     with torch.no_grad():
         for i, (input, target) in enumerate(val_loader):
-            target = target.cuda()
+            target = target.to(device)
 
             # compute output
             output = model(input)
             loss = criterion(output, target)
 
             # measure accuracy and record loss
-            prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
+            prec1, prec5 = accuracy(output.data, target, topk=(1, 5)) # YWK - HAD TO CHANGE AS 1,5 CRASHES
 
             losses.update(loss.item(), input.size(0))
             top1.update(prec1.item(), input.size(0))
