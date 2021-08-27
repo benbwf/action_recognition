@@ -32,9 +32,9 @@ this will create an environment with pytorch cpu version and with all the other 
 
 Create a actions_label_map.txt file containing the list of actions (classes) that you want to train the model on.  
 You need to include a "no_action" class as the negative class.  
-Refer to [actions_label_map.txt](https://github.com/benbwf/action_recognition/blob/master/actions_label_map.txt) for an example.  
+Refer to [actions_label_map.txt](actions_label_map.txt) for an example.  
 Place this file in a folder. The name of this folder is your 'dataset version' (you need to specify this when training the model).  
-The parent directory of this folder should be in [env_vars.py](https://github.com/benbwf/action_recognition/blob/master/env_vars.py) as your RAW_DATA_ROOT.
+The parent directory of this folder should be in [env_vars.py](env_vars.py) as your RAW_DATA_ROOT.
 
 ## 3. Annotation
 
@@ -42,17 +42,17 @@ Annotate using via_video_annotator.html.
 Create an attribute called 'action', and set the following properties:
  - anchor: 'Temporal Segment in Video or Audio
  - Input Type: Checkbox
-Alternatively, load the [annotation_project_template.json](https://github.com/benbwf/action_recognition/blob/master/annotation_project_template.json) file into the annotator to create the action attributes, then edit the action list ad needed.  
+Alternatively, load the [annotation_project_template.json](annotation_project_template.json) file into the annotator to create the action attributes, then edit the action list ad needed.  
 Save videos and annotation files into same folder.  
-Add that folder path to [env_vars.py](https://github.com/benbwf/action_recognition/blob/master/env_vars.py) as VIDEOS_DIR
+Add that folder path to [env_vars.py](env_vars.py) as VIDEOS_DIR
 
 ## 4. Preprocessing
 
-Set CLIPS_DIR and FRAMES_DIR in [env_vars.py](https://github.com/benbwf/action_recognition/blob/master/env_vars.py) as the locations that you want the preprocessing scripts to save the files to.
+Set CLIPS_DIR and FRAMES_DIR in [env_vars.py](env_vars.py) as the locations that you want the preprocessing scripts to save the files to.
 Run the three preprocessing scripts/notebooks:
  - [01_preprocess_clip_extractor.ipynb](01_preprocess_clip_extractor.ipynb)
- - [02_preprocess_vid2img.py](./02_preprocess_vid2img.py)
- - [03_preprocess_makedatasetsplit.ipynb](./03_preprocess_makedatasetsplit.ipynb)
+ - [02_preprocess_vid2img.py](02_preprocess_vid2img.py)
+ - [03_preprocess_makedatasetsplit.ipynb](03_preprocess_makedatasetsplit.ipynb)
  
 
 ## 5. Training
@@ -68,4 +68,4 @@ python main.py ite <path/to/to/dataset/folder> RGB --dataset_version <dataset_ve
 (100 epochs is recommended)
 
 ## 6. Prediction
-Use [predict_video_and_score.ipynb](https://github.com/benbwf/action_recognition/blob/master/predict_video_and_score.ipynb) to predict actions in the videos.
+Use [predict_video_and_score.ipynb](predict_video_and_score.ipynb) to predict actions in the videos.
