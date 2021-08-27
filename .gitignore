@@ -1,5 +1,6 @@
 pretrained/
 checkpoint/
+*output/
 log/
 *.pyc
 *.ipynb_checkpoints
