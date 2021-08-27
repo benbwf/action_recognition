@@ -53,5 +53,5 @@ python main.py ite <path/to/to/dataset/folder> RGB --dataset_version <dataset_ve
 ```
 (100 epochs is recommended)
 
-##5. Prediction
+## 5. Prediction
 Use [predict_video_and_score.ipynb](https://github.com/benbwf/action_recognition/blob/master/predict_video_and_score.ipynb) to predict actions in the videos.
